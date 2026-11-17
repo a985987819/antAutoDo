@@ -1,15 +1,15 @@
 'use strict';
 
-// Pure policy: image perception and device actions are not implemented here.
+// Pure policy. elapsedMs is measured from verified game entry, never per round.
 function decide(state) {
-  if (!state || state.pageVerified !== true || state.obstructed !== false) {
-    return { next: 'pause', reason: 'unknown-or-obstructed-page' };
+  if (!state || state.pageVerified !== true) return { next: 'pause', reason: 'unknown-page' };
+  if (state.phase === 'capacity-warning') {
+    return { next: 'dismiss-warning-and-stop', reason: 'user-must-decide-capacity' };
   }
-  if (!Number.isSafeInteger(state.elapsedMs) || state.elapsedMs < 0 ||
-      !Number.isSafeInteger(state.earnedGrams) || state.earnedGrams < 0 || state.earnedGrams > 240) {
+  if (state.obstructed !== false) return { next: 'pause', reason: 'obstructed-page' };
+  if (!Number.isSafeInteger(state.elapsedMs) || state.elapsedMs < 0) {
     return { next: 'pause', reason: 'invalid-observation' };
   }
-  if (state.elapsedMs >= 600000) return { next: 'pause', reason: 'session-timeout' };
   if (state.phase === 'task-list') {
     if (state.rewardState === 'claimed') return { next: 'done' };
     if (state.rewardState === 'claimable' && state.rewardRowVerified === true && state.rewardVisible === true) {
@@ -18,18 +18,8 @@ function decide(state) {
     return { next: 'pause', reason: 'reward-not-confirmed' };
   }
   if (state.phase !== 'game') return { next: 'pause', reason: 'unknown-phase' };
-  if (state.earnedGrams === 240) return { next: 'return-once-and-inspect-reward', reason: 'verified-reward-cap' };
-  if (!Number.isSafeInteger(state.sinceLastPollMs) || state.sinceLastPollMs < 0) {
-    return { next: 'pause', reason: 'invalid-poll-time' };
-  }
-  if (state.sinceLastPollMs < 30000) return { next: 'wait', remainingMs: 30000 - state.sinceLastPollMs };
-  if (state.timerState === 'running' || state.timerState === 'new-round') {
-    return { next: 'observe-next-window', intervalMs: 30000 };
-  }
-  if (state.timerState === 'stopped' && state.stopVerified === true) {
-    return { next: 'return-once-and-inspect-reward', reason: 'timer-ended' };
-  }
-  return { next: 'pause', reason: 'timer-state-uncertain' };
+  if (state.elapsedMs >= 50000) return { next: 'close-game-and-inspect-reward', reason: 'fifty-second-limit' };
+  return { next: 'wait', remainingMs: 50000 - state.elapsedMs };
 }
 
 module.exports = { decide: decide };

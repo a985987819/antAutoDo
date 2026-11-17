@@ -11,7 +11,10 @@ var rules = [
   ['去杂货铺逛一逛', 'timed', 15000],
   ['看庄园小视频', 'timed', 15000],
   ['搜“意外险”选百万保障', 'timed', 15000],
-  ['送你90g饲料奖励！', 'reward-followup', 15000]
+  ['送你90g饲料奖励！', 'reward-followup', 15000],
+  ['去美团逛一逛领金币', 'cross-app', 5000],
+  ['去大众点评赢免单', 'cross-app', 5000],
+  ['去闲鱼逛一逛', 'cross-app', 5000]
 ];
 
 // The adapter must extract the exact title and state from one verified task row.
@@ -26,6 +29,17 @@ function plan(row) {
   if (row.state === 'claimable') return { next: 'claim-and-verify', title: row.title };
   if (row.state !== 'pending') return { next: 'needs-human', reason: 'unknown-state' };
   if (rule[1] === 'reward-followup') return { next: 'needs-human', reason: 'verify-prerequisite-and-claim-state' };
+  if (rule[1] === 'cross-app') {
+    return {
+      next: 'inspect-cross-app-target',
+      title: row.title,
+      type: rule[1],
+      minDwellMs: rule[2],
+      dwellStartsAt: 'verified-target-page',
+      returnMode: 'switch-to-alipay',
+      completionVerified: false
+    };
+  }
   return {
     next: 'open-wait-return-verify',
     title: row.title,

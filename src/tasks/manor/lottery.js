@@ -2,7 +2,7 @@
 
 // Input is a normalized observation, not raw OCR output. Unknown values fail closed.
 function planTab(tab) {
-  if (!tab || ['daily', 'event'].indexOf(tab.id) < 0 || tab.verified !== true) {
+  if (!tab || ['left', 'right'].indexOf(tab.id) < 0 || tab.verified !== true) {
     return { status: 'needs-human', reason: 'unknown-tab' };
   }
   if (tab.tasksComplete !== true) return { status: 'needs-tasks' };

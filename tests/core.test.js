@@ -61,7 +61,7 @@ test('live mode refuses unvalidated adapter', async () => {
 });
 
 test('lottery checks each tab, exact count and native mode', () => {
-  for (const id of ['daily', 'event']) {
+  for (const id of ['left', 'right']) {
     const tab = { id, verified: true, tasksComplete: true, chances: 6, nativeAutoDraw: true, autoDrawMode: 'all' };
     assert.equal(planTab(tab).status, 'ready');
     assert.equal(planTab({ ...tab, chances: 7 }).reason, 'would-overdraw');

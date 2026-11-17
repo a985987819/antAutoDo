@@ -13,7 +13,7 @@ npm test
 npm run check
 ```
 
-能力边界与手机连接步骤见 [真机验证说明](docs/device-bringup.md)。
+能力边界与手机连接步骤见 [真机验证说明](docs/device-bringup.md)。全部8类业务的独立运行状态与迁移批次见 [移动端能力审计](docs/mobile-capabilities.md)：当前完整独立闭环验收为0类。
 
 ## 目标范围
 
